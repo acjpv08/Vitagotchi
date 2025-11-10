@@ -18,15 +18,18 @@ jobs:
         # Use the same Python version you use
         python-version: '3.11' 
     
-    - name: Install dependencies
+    - name: Install, Verify, and Run
       run: |
-        # THIS IS THE FIX: Use "python -m pip" for all commands
+        # 1. Install everything
         python -m pip install --upgrade pip
         python -m pip install "pyinstaller>=6.0" pillow
-    
-    - name: Run PyInstaller
-      run: |
-        # Use "python -m pyinstaller" to run the module
+        
+        echo "--- VERIFYING INSTALL (DEBUG) ---"
+        # 2. List installed packages to be sure
+        python -m pip list
+        echo "--- RUNNING PYINSTALLER ---"
+        
+        # 3. Run PyInstaller (using lowercase)
         python -m pyinstaller --windowed --onefile --name "Vitagotchi" \
           --add-data "assets:assets" \
           --osx-bundle-identifier "com.yourname.vitagotchi" \
