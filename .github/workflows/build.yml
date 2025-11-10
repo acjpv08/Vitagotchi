@@ -32,13 +32,15 @@ jobs:
       run: |
         echo "--- pip list (shows installed modules) ---"
         ${{ steps.setup-python.outputs.python-path }} -m pip list
+        echo "--- Confirming pyi-makespec is on PATH ---"
+        which pyi-makespec
         
     - name: Generate .spec file
       run: |
         echo "--- GENERATING .spec file ---"
-        PY_PATH="${{ steps.setup-python.outputs.python-path }}"
-        # This MUST match the filename shown in the 'List files (Debug)' step
-        $PY_PATH -m PyInstaller makespec --windowed --onefile --name "Vitagotchi" \
+        # FIX: Use the 'pyi-makespec' command directly.
+        # This is the dedicated script for this purpose and is often more robust.
+        pyi-makespec --windowed --onefile --name "Vitagotchi" \
           --add-data "assets:assets" \
           --osx-bundle-identifier "com.yourname.vitagotchi" \
           "Vitagotchi_4.0 - MAC.py"
@@ -56,8 +58,8 @@ jobs:
     - name: Run PyInstaller with .spec file
       run: |
         echo "--- RUNNING PyInstaller (with .spec file) ---"
-        # 3. Run PyInstaller on the modified .spec file
-        ${{ steps.setup-python.outputs.python-path }} -m PyInstaller Vitagotchi.spec
+        # FIX: Use the 'pyinstaller' command directly.
+        pyinstaller Vitagotchi.spec
           
     - name: Upload app artifact
       uses: actions/upload-artifact@v4
