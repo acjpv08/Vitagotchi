@@ -2,8 +2,7 @@ name: Build macOS App
 on: [push]
 jobs:
   build:
-    # FIX: Changed from macos-latest (Intel) to macos-13 (Apple Silicon M1)
-    runs-on: macos-13
+    runs-on: macos-13 # Apple Silicon M1 runner
     steps:
     - uses: actions/checkout@v4
     
@@ -26,7 +25,6 @@ jobs:
         $PY_PATH -m pip install --upgrade pip
         
         echo "--- INSTALLING pyinstaller (lowercase) ---"
-        # 1. Use the canonical lowercase package name for pip install
         $PY_PATH -m pip install --no-cache-dir --force-reinstall "pyinstaller>=6.0" pillow
             
     - name: Verify Install (Debug)
@@ -39,7 +37,6 @@ jobs:
     - name: Generate .spec file
       run: |
         echo "--- GENERATING .spec file ---"
-        # This is the dedicated script for this purpose
         pyi-makespec --windowed --onefile --name "Vitagotchi" \
           --add-data "assets:assets" \
           --osx-bundle-identifier "com.yourname.vitagotchi" \
@@ -48,8 +45,6 @@ jobs:
     - name: Modify .spec to add plist entries
       run: |
         echo "--- MODIFYING Vitagotchi.spec ---"
-        # Use sed to find the bundle_identifier line and append the info_plist dict
-        # The -i '' is required for sed on macOS to edit in-place without a backup file
         sed -i '' "s/bundle_identifier='com.yourname.vitagotchi'/bundle_identifier='com.yourname.vitagotchi', info_plist={'NSHighResolutionCapable': 'True'}/" Vitagotchi.spec
         
         echo "--- .spec file contents ---"
@@ -58,8 +53,15 @@ jobs:
     - name: Run PyInstaller with .spec file
       run: |
         echo "--- RUNNING PyInstaller (with .spec file) ---"
-        # Use the 'pyinstaller' command directly
         pyinstaller Vitagotchi.spec
+    
+    - name: Ad-hoc sign the application
+      run: |
+        echo "--- AD-HOC SIGNING APP ---"
+        # Force an ad-hoc signature on the bundled app.
+        # This is often required for Gatekeeper on Apple Silicon.
+        # The '-' means we are signing it without a real certificate.
+        codesign --force --deep --sign - "dist/Vitagotchi.app"
           
     - name: Upload app artifact
       uses: actions/upload-artifact@v4
