@@ -10,24 +10,27 @@ jobs:
       with:
         python-version: '3.11'
         
-    - name: Install dependencies (Forcing PyInstaller)
+    - name: Install dependencies
       run: |
-        # Use the exact python path for all commands
-        ${{ steps.setup-python.outputs.python-path }} -m pip install --upgrade pip
+        # Use the exact python path
+        PY_PATH="${{ steps.setup-python.outputs.python-path }}"
         
-        # This is the fix: --no-cache-dir and --force-reinstall
-        # This forces it to download the new version (>=6.0) you asked for.
-        ${{ steps.setup-python.outputs.python-path }} -m pip install --no-cache-dir --force-reinstall "PyInstaller>=6.0" pillow
+        echo "--- UPGRADING PIP ---"
+        $PY_PATH -m pip install --upgrade pip
         
+        echo "--- INSTALLING pyinstaller (lowercase package) ---"
+        # 1. We INSTALL the LOWERCASE package name from PyPI
+        $PY_PATH -m pip install --no-cache-dir --force-reinstall "pyinstaller>=6.0" pillow
+            
     - name: Verify Install (Debug)
       run: |
         echo "--- pip list (shows installed modules) ---"
         ${{ steps.setup-python.outputs.python-path }} -m pip list
         
-    - name: Run PyInstaller (Using only PyInstaller)
+    - name: Run PyInstaller (Using Camel Case Module)
       run: |
-        # Use the exact python path to run PyInstaller as a module.
-        # No more lowercase version.
+        echo "--- RUNNING PyInstaller (camel case module) ---"
+        # 2. We RUN the CAMEL CASE module name, as you and the dev stated
         ${{ steps.setup-python.outputs.python-path }} -m PyInstaller --windowed --onefile --name "Vitagotchi" \
           --add-data "assets:assets" \
           --osx-bundle-identifier "com.yourname.vitagotchi" \
