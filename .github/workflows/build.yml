@@ -14,23 +14,26 @@ jobs:
       
     - name: Set up Python 3.11
       uses: actions/setup-python@v5
+      id: setup-python  # Give this step an ID
       with:
-        # Use the same Python version you use
         python-version: '3.11' 
     
     - name: Install, Verify, and Run
       run: |
-        # 1. Install everything
-        python -m pip install --upgrade pip
-        python -m pip install "pyinstaller>=6.0" pillow
+        # This is the fix: We use the exact path from the step above
+        # ${{ steps.setup-python.outputs.python-path }} becomes the full path to python.exe
+        
+        echo "--- UPGRADING PIP ---"
+        ${{ steps.setup-python.outputs.python-path }} -m pip install --upgrade pip
+        
+        echo "--- INSTALLING DEPENDENCIES ---"
+        ${{ steps.setup-python.outputs.python-path }} -m pip install "pyinstaller>=6.0" pillow
         
         echo "--- VERIFYING INSTALL (DEBUG) ---"
-        # 2. List installed packages to be sure
-        python -m pip list
-        echo "--- RUNNING PYINSTALLER ---"
+        ${{ steps.setup-python.outputs.python-path }} -m pip list
         
-        # 3. Run PyInstaller (using lowercase)
-        python -m pyinstaller --windowed --onefile --name "Vitagotchi" \
+        echo "--- RUNNING PYINSTALLER ---"
+        ${{ steps.setup-python.outputs.python-path }} -m pyinstaller --windowed --onefile --name "Vitagotchi" \
           --add-data "assets:assets" \
           --osx-bundle-identifier "com.yourname.vitagotchi" \
           --plist-entry "NSHighResolutionCapable=True" \
