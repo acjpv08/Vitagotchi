@@ -21,12 +21,13 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        # This is the fix: Force install a version >= 6.0
+        # Install the new pyinstaller version
         pip install "pyinstaller>=6.0" pillow
     
     - name: Run PyInstaller
       run: |
-        pyinstaller --windowed --onefile --name "Vitagotchi" \
+        # THIS IS THE FIX: Use "python -m pyinstaller"
+        python -m pyinstaller --windowed --onefile --name "Vitagotchi" \
           --add-data "assets:assets" \
           --osx-bundle-identifier "com.yourname.vitagotchi" \
           --plist-entry "NSHighResolutionCapable=True" \
