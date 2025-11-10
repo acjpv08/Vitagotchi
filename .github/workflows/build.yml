@@ -5,6 +5,12 @@ jobs:
     runs-on: macos-latest
     steps:
     - uses: actions/checkout@v4
+    
+    - name: List files (Debug)
+      run: |
+        echo "--- Listing files in repository ---"
+        ls -l
+        
     - uses: actions/setup-python@v5
       id: setup-python
       with:
@@ -31,7 +37,7 @@ jobs:
       run: |
         echo "--- GENERATING .spec file ---"
         PY_PATH="${{ steps.setup-python.outputs.python-path }}"
-        # FIX: Changed "MAC.py" to "Mac.py" to match the actual filename
+        # This MUST match the filename shown in the 'List files (Debug)' step
         $PY_PATH -m PyInstaller makespec --windowed --onefile --name "Vitagotchi" \
           --add-data "assets:assets" \
           --osx-bundle-identifier "com.yourname.vitagotchi" \
