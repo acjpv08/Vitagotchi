@@ -27,15 +27,30 @@ jobs:
         echo "--- pip list (shows installed modules) ---"
         ${{ steps.setup-python.outputs.python-path }} -m pip list
         
-    - name: Run PyInstaller (Using Camel Case module name)
+    - name: Generate .spec file
       run: |
-        echo "--- RUNNING PyInstaller (camel case module) ---"
-        # 2. We will RUN the CAMEL CASE module name, as per PyInstaller's design.
-        ${{ steps.setup-python.outputs.python-path }} -m PyInstaller --windowed --onefile --name "Vitagotchi" \
+        echo "--- GENERATING .spec file ---"
+        PY_PATH="${{ steps.setup-python.outputs.python-path }}"
+        $PY_PATH -m PyInstaller makespec --windowed --onefile --name "Vitagotchi" \
           --add-data "assets:assets" \
           --osx-bundle-identifier "com.yourname.vitagotchi" \
-          --plist-entry "NSHighResolutionCapable=True" \
           "Vitagotchi_4.0 - MAC.py"
+
+    - name: Modify .spec to add plist entries
+      run: |
+        echo "--- MODIFYING Vitagotchi.spec ---"
+        # Use sed to find the bundle_identifier line and append the info_plist dict
+        # The -i '' is required for sed on macOS to edit in-place without a backup file
+        sed -i '' "s/bundle_identifier='com.yourname.vitagotchi'/bundle_identifier='com.yourname.vitagotchi', info_plist={'NSHighResolutionCapable': 'True'}/" Vitagotchi.spec
+        
+        echo "--- .spec file contents ---"
+        cat Vitagotchi.spec
+
+    - name: Run PyInstaller with .spec file
+      run: |
+        echo "--- RUNNING PyInstaller (with .spec file) ---"
+        # 3. Run PyInstaller on the modified .spec file
+        ${{ steps.setup-python.outputs.python-path }} -m PyInstaller Vitagotchi.spec
           
     - name: Upload app artifact
       uses: actions/upload-artifact@v4
