@@ -1,8 +1,8 @@
 name: Build macOS App
-on: [push] 
+on: [push]
 jobs:
   build:
-    runs-on: macos-latest 
+    runs-on: macos-latest
     steps:
     - uses: actions/checkout@v4
     - uses: actions/setup-python@v5
@@ -10,7 +10,7 @@ jobs:
       with:
         python-version: '3.11'
         
-    - name: Install dependencies (Using Camel Case)
+    - name: Install dependencies (Using lowercase)
       run: |
         # Use the exact python path
         PY_PATH="${{ steps.setup-python.outputs.python-path }}"
@@ -18,20 +18,20 @@ jobs:
         echo "--- UPGRADING PIP ---"
         $PY_PATH -m pip install --upgrade pip
         
-        echo "--- INSTALLING PyInstaller (camel case) ---"
-        # 1. We will try to INSTALL the CAMEL CASE package name.
-        $PY_PATH -m pip install --no-cache-dir --force-reinstall "PyInstaller>=6.0" pillow
+        echo "--- INSTALLING pyinstaller (lowercase) ---"
+        # 1. Use the canonical lowercase package name
+        $PY_PATH -m pip install --no-cache-dir --force-reinstall "pyinstaller>=6.0" pillow
             
     - name: Verify Install (Debug)
       run: |
         echo "--- pip list (shows installed modules) ---"
         ${{ steps.setup-python.outputs.python-path }} -m pip list
         
-    - name: Run PyInstaller (Using Camel Case)
+    - name: Run PyInstaller (Using lowercase)
       run: |
-        echo "--- RUNNING PyInstaller (camel case module) ---"
-        # 2. We will RUN the CAMEL CASE module name.
-        ${{ steps.setup-python.outputs.python-path }} -m PyInstaller --windowed --onefile --name "Vitagotchi" \
+        echo "--- RUNNING pyinstaller (lowercase module) ---"
+        # 2. We will RUN the lowercase module name. This is the critical fix.
+        ${{ steps.setup-python.outputs.python-path }} -m pyinstaller --windowed --onefile --name "Vitagotchi" \
           --add-data "assets:assets" \
           --osx-bundle-identifier "com.yourname.vitagotchi" \
           --plist-entry "NSHighResolutionCapable=True" \
