@@ -20,13 +20,13 @@ jobs:
     
     - name: Install dependencies
       run: |
+        # THIS IS THE FIX: Use "python -m pip" for all commands
         python -m pip install --upgrade pip
-        # Install the new pyinstaller version
-        pip install "pyinstaller>=6.0" pillow
+        python -m pip install "pyinstaller>=6.0" pillow
     
     - name: Run PyInstaller
       run: |
-        # THIS IS THE FIX: Use "python -m pyinstaller"
+        # Use "python -m pyinstaller" to run the module
         python -m pyinstaller --windowed --onefile --name "Vitagotchi" \
           --add-data "assets:assets" \
           --osx-bundle-identifier "com.yourname.vitagotchi" \
