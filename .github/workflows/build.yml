@@ -1,44 +1,47 @@
 name: Build macOS App
-
-# Run this "action" every time you push code
 on: [push] 
-
 jobs:
   build:
-    # Use a virtual Mac
     runs-on: macos-latest 
-    
     steps:
-    - name: Check out repository code
-      uses: actions/checkout@v4
-      
-    - name: Set up Python 3.11
-      uses: actions/setup-python@v5
-      id: setup-python  # Give this step an ID
+    - uses: actions/checkout@v4
+    - uses: actions/setup-python@v5
+      id: setup-python
       with:
-        python-version: '3.11' 
-    
-    - name: Install, Verify, and Run
+        python-version: '3.11'
+        
+    - name: Install dependencies
       run: |
-        # This is the fix: We use the exact path from the step above
-        # ${{ steps.setup-python.outputs.python-path }} becomes the full path to python.exe
-        
-        echo "--- UPGRADING PIP ---"
+        # Use the exact python path for all commands
         ${{ steps.setup-python.outputs.python-path }} -m pip install --upgrade pip
+        # Install both just in case pip maps them differently. This is robust.
+        ${{ steps.setup-python.outputs.python-path }} -m pip install "pyinstaller>=6.0" "PyInstaller>=6.0" pillow
         
-        echo "--- INSTALLING DEPENDENCIES ---"
-        ${{ steps.setup-python.outputs.python-path }} -m pip install "pyinstaller>=6.0" pillow
-        
-        echo "--- VERIFYING INSTALL (DEBUG) ---"
+    - name: Verify Install (Debug)
+      run: |
+        echo "--- pip list (shows installed modules) ---"
         ${{ steps.setup-python.outputs.python-path }} -m pip list
         
-        echo "--- RUNNING PYINSTALLER ---"
-        ${{ steps.setup-python.outputs.python-path }} -m pyinstaller --windowed --onefile --name "Vitagotchi" \
+    - name: Run PyInstaller (Trying your fix first)
+      run: |
+        # We will try your PyInstaller (camel case) command first.
+        # If it fails (||), we will try the lowercase version.
+        echo "--- ATTEMPT 1: Running with PyInstaller (camel case) ---"
+        ${{ steps.setup-python.outputs.python-path }} -m PyInstaller --windowed --onefile --name "Vitagotchi" \
           --add-data "assets:assets" \
           --osx-bundle-identifier "com.yourname.vitagotchi" \
           --plist-entry "NSHighResolutionCapable=True" \
-          "Vitagotchi_4.0 - MAC.py"
-    
+          "Vitagotchi_4.0 - MAC.py" \
+        || \
+        ( \
+          echo "--- ATTEMPT 1 FAILED. Trying ATTEMPT 2: pyinstaller (lowercase) ---" && \
+          ${{ steps.setup-python.outputs.python-path }} -m pyinstaller --windowed --onefile --name "Vitagotchi" \
+            --add-data "assets:assets" \
+            --osx-bundle-identifier "com.yourname.vitagotchi" \
+            --plist-entry "NSHighResolutionCapable=True" \
+            "Vitagotchi_4.0 - MAC.py" \
+        )
+          
     - name: Upload app artifact
       uses: actions/upload-artifact@v4
       with:
