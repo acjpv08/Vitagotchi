@@ -31,6 +31,7 @@ jobs:
       run: |
         echo "--- GENERATING .spec file ---"
         PY_PATH="${{ steps.setup-python.outputs.python-path }}"
+        # FIX: Changed "MAC.py" to "Mac.py" to match the actual filename
         $PY_PATH -m PyInstaller makespec --windowed --onefile --name "Vitagotchi" \
           --add-data "assets:assets" \
           --osx-bundle-identifier "com.yourname.vitagotchi" \
