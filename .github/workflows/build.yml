@@ -2,7 +2,8 @@ name: Build macOS App
 on: [push]
 jobs:
   build:
-    runs-on: macos-latest
+    # FIX: Changed from macos-latest (Intel) to macos-13 (Apple Silicon M1)
+    runs-on: macos-13
     steps:
     - uses: actions/checkout@v4
     
@@ -38,8 +39,7 @@ jobs:
     - name: Generate .spec file
       run: |
         echo "--- GENERATING .spec file ---"
-        # FIX: Use the 'pyi-makespec' command directly.
-        # This is the dedicated script for this purpose and is often more robust.
+        # This is the dedicated script for this purpose
         pyi-makespec --windowed --onefile --name "Vitagotchi" \
           --add-data "assets:assets" \
           --osx-bundle-identifier "com.yourname.vitagotchi" \
@@ -58,7 +58,7 @@ jobs:
     - name: Run PyInstaller with .spec file
       run: |
         echo "--- RUNNING PyInstaller (with .spec file) ---"
-        # FIX: Use the 'pyinstaller' command directly.
+        # Use the 'pyinstaller' command directly
         pyinstaller Vitagotchi.spec
           
     - name: Upload app artifact
