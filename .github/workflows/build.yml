@@ -10,7 +10,7 @@ jobs:
       with:
         python-version: '3.11'
         
-    - name: Install dependencies (Using lowercase)
+    - name: Install dependencies (Using lowercase package name)
       run: |
         # Use the exact python path
         PY_PATH="${{ steps.setup-python.outputs.python-path }}"
@@ -19,7 +19,7 @@ jobs:
         $PY_PATH -m pip install --upgrade pip
         
         echo "--- INSTALLING pyinstaller (lowercase) ---"
-        # 1. Use the canonical lowercase package name
+        # 1. Use the canonical lowercase package name for pip install
         $PY_PATH -m pip install --no-cache-dir --force-reinstall "pyinstaller>=6.0" pillow
             
     - name: Verify Install (Debug)
@@ -27,11 +27,11 @@ jobs:
         echo "--- pip list (shows installed modules) ---"
         ${{ steps.setup-python.outputs.python-path }} -m pip list
         
-    - name: Run PyInstaller (Using lowercase)
+    - name: Run PyInstaller (Using Camel Case module name)
       run: |
-        echo "--- RUNNING pyinstaller (lowercase module) ---"
-        # 2. We will RUN the lowercase module name. This is the critical fix.
-        ${{ steps.setup-python.outputs.python-path }} -m pyinstaller --windowed --onefile --name "Vitagotchi" \
+        echo "--- RUNNING PyInstaller (camel case module) ---"
+        # 2. We will RUN the CAMEL CASE module name, as per PyInstaller's design.
+        ${{ steps.setup-python.outputs.python-path }} -m PyInstaller --windowed --onefile --name "Vitagotchi" \
           --add-data "assets:assets" \
           --osx-bundle-identifier "com.yourname.vitagotchi" \
           --plist-entry "NSHighResolutionCapable=True" \
